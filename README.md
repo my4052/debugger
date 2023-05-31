@@ -13,3 +13,9 @@ Currently this uses native DOM APIs for rendering, as well as the wonderful mona
 5. `npm run dev` for the live dev environment. You'll want to serve your static assets from `static` with another web-server (we use http-server).
 
 More coming soon...
+
+## Try doing the following to solve compatibility issues
+
+```bash
+export NODE_OPTIONS=--openssl-legacy-provider
+```

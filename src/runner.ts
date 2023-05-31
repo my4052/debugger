@@ -13,6 +13,7 @@ import {
   Message,
   WorkerCommands,
 } from './types';
+import { urlHistory } from './history';
 
 const runnerHTML = `
 <div id="viewer">
@@ -99,6 +100,7 @@ export class Runner {
     this.onClose = onClose;
 
     this.setupPuppeteerWorker();
+    urlHistory.splice(0);
   }
 
   onVerticalResize = (evt: MouseEvent) => {
@@ -297,21 +299,25 @@ export class Runner {
     this.$mount.innerHTML = `${errorHTML(err)}`;
   };
 
-  onRunComplete = async ({ url, payload }: { url: string, payload: any }) => {
+  onRunComplete = async ({ url, title, payload }: { url: string, title: string; payload: any }) => {
+    urlHistory.push({ url, title });
     const download = await Runner.makeDownload(payload);
 
     if (!download) {
       return null;
     }
 
-    const title = new URL(url).hostname.replace(/\W/g, '-');
+    const fileName = new URL(url).hostname.replace(/\W/g, '-');
     const blob = new Blob([download.payload], { type: download.type });
     const link = document.createElement('a');
     link.href = window.URL.createObjectURL(blob);
 
-    const fileName = title;
     link.download = fileName;
     return link.click();
+  };
+
+  onPopup = ({ url, title }: { url: string; title: string }) => {
+    urlHistory.push({url, title});
   };
 
   sendWorkerMessage = (message: Message) => {
@@ -327,6 +333,27 @@ export class Runner {
       },
     });
   };
+
+  gotoUrl = (url: string) => {
+    this.sendWorkerMessage({
+      command: HostCommands.gotoUrl,
+      data: { url },
+    });
+  }
+
+  goBack = () => {
+    this.sendWorkerMessage({
+      command: HostCommands.goBack,
+      data: null
+    });
+  }
+
+  goForward = () => {
+    this.sendWorkerMessage({
+      command: HostCommands.goForward,
+      data: null,
+    });
+  }
 
   onWorkerSetupComplete = (payload: Message['data']) => {
     const { targetId } = payload;
@@ -365,6 +392,10 @@ export class Runner {
 
       if (command === WorkerCommands.runComplete) {
         return this.onRunComplete(data);
+      }
+
+      if (command === WorkerCommands.popup) {
+        return this.onPopup(data);
       }
 
       if (command === WorkerCommands.error) {

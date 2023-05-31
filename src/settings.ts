@@ -11,6 +11,7 @@ import {
   setIgnoreHTTPS,
   getQuality,
   setQuality,
+  setDriveMode,
 } from './api';
 
 const settingsHTML = `
@@ -76,6 +77,12 @@ export class Settings {
     this.$stealthInput = document.querySelector('#stealth') as HTMLInputElement;
     this.$blockAdsInput = document.querySelector('#block-ads') as HTMLInputElement;
     this.$screencastQuality = document.querySelector('#screencast-quality') as HTMLInputElement;
+
+    const search = new URLSearchParams(window.location.search);
+    const driveMode = search.get('driveMode');
+    if (driveMode) {
+      setDriveMode(driveMode);
+    }
 
     this.hydrate();
     this.addListeners();

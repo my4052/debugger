@@ -1,3 +1,14 @@
+export const defaultExample = `// Full TypeScript support for both puppeteer and the DOM
+export default async ({ page }: { page: Page }) => {
+
+  // 请在下方更换您的评测地址
+  await page.goto('URL');
+  // 若无其他特殊要求，请勿修改以下代码，以免引起错误
+  page.on('popup', (e) => {
+    page.goto(e.url());
+  });
+};`;
+
 export const searchExample = `// Full TypeScript support for both puppeteer and the DOM
 export default async ({ page }: { page: Page }) => {
 

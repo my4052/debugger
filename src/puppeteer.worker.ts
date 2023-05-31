@@ -66,6 +66,17 @@ const start = async(data: Message['data']) => {
       targetId: (page as any)._target._targetId,
     },
   });
+
+  page.on('popup', async (e) => {
+    const title = await (e as Page).title();
+    sendParentMessage({
+      command: WorkerCommands.popup,
+      data: {
+        url: e.url(),
+        title,
+      },
+    })
+  });
 };
 
 const onScreencastFrame = ({ data, sessionId }: { data: string; sessionId: number }) => {
@@ -77,15 +88,23 @@ const onScreencastFrame = ({ data, sessionId }: { data: string; sessionId: numbe
 
 const setViewport = (data: { width: number, height: number, deviceScaleFactor: number }) => page && page.setViewport(data);
 
+const gotoUrl = (data: { url: string }) => page && page.goto(data.url);
+const goBack = () => page && page.goBack();
+const goForward = () => page && page.goForward();
+
 const runCode = async ({ code }: Message['data']) => {
   eval(code)({ page })
-    .then(async (res: any) => sendParentMessage({
-      command: WorkerCommands.runComplete,
-      data: {
-        url: (page as Page).url(),
-        payload: res,
-      },
-    }))
+    .then(async (res: any) => {
+      const title = await (page as Page).title();
+      sendParentMessage({
+        command: WorkerCommands.runComplete,
+        data: {
+          url: (page as Page).url(),
+          title,
+          payload: res,
+        },
+      });
+    })
     .catch((e: Error) => {
       page && page.evaluate((err) => console.error(err), e.toString());
     });
@@ -110,6 +129,18 @@ self.addEventListener('message', async (message) => {
 
   if (command === HostCommands.setViewport) {
     return setViewport(data);
+  }
+
+  if (command === HostCommands.gotoUrl) {
+    return gotoUrl(data);
+  }
+
+  if (command === HostCommands.goBack) {
+    return goBack();
+  }
+
+  if (command === HostCommands.goForward) {
+    return goForward();
   }
 
   if (command === HostCommands.close) {

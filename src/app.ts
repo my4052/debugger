@@ -40,6 +40,8 @@ export class App {
   private sessions: Sessions;
 
   private $editorButton = document.querySelector('#editor-button-radio') as HTMLInputElement;
+  private $backButton = document.querySelector('#back-button') as HTMLElement;
+  private $forwardButton = document.querySelector('#forward-button') as HTMLElement;
   private $runButton = document.querySelector('#run-button') as HTMLElement;
   private $runnerMount = document.querySelector('#runner') as HTMLElement;
   private $editorPanel = document.querySelector('#editor') as HTMLElement;
@@ -60,12 +62,16 @@ export class App {
 
     this.settings.onClose(this.onPanelClose);
     this.sessions.onClose(this.onPanelClose);
+    this.sessions.onGotoUrl(this.gotoUrl);
 
+    this.$backButton.addEventListener('click', this.goBack);
+    this.$forwardButton.addEventListener('click', this.goForward);
     this.$runButton.addEventListener('click', this.run);
     this.$download.addEventListener('click', this.download);
     this.$radioButtons.forEach((el) => el.addEventListener('change', this.onPanelChange));
 
     this.addEventListeners();
+    this.$runButton.click();
   }
 
   onPanelClose = () => {
@@ -165,5 +171,27 @@ export class App {
     const onClose = this.onRunnerComplete;
 
     this.runner = new Runner({ code, $mount, onClose });
+    this.sessions.toggleVisibility(true);
   };
+
+  gotoUrl = (url: string) => {
+    if (!this.runner) {
+      return;
+    }
+    this.runner.gotoUrl(url);
+  }
+
+  goBack = () => {
+    if (!this.runner) {
+      return;
+    }
+    this.runner.goBack();
+  }
+
+  goForward = () => {
+    if (!this.runner) {
+      return;
+    }
+    this.runner.goForward();
+  }
 }

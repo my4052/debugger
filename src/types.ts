@@ -8,6 +8,9 @@ export enum HostCommands {
   'run' = 'run',
   'close' = 'close',
   'setViewport' = 'setViewport',
+  'gotoUrl' = 'gotoUrl',
+  'goBack' = 'goBack',
+  'goForward' = 'goForward',
 }
 
 export enum WorkerCommands {
@@ -16,6 +19,7 @@ export enum WorkerCommands {
   'screencastFrame' = 'screencastFrame',
   'browserClose' = 'browserClose',
   'error' = 'error',
+  'popup' = 'popup',
 }
 
 export interface Message {

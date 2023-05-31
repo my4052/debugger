@@ -8,6 +8,7 @@ interface APIState {
   blockAds: boolean;
   ignoreHTTPSErrors: boolean;
   quality: number;
+  driveMode: string;
 };
 
 const getState = () => get(apiSettingsKey) as APIState;
@@ -24,6 +25,7 @@ const stealth = priorSettings.stealth ?? false;
 const blockAds = priorSettings.blockAds ?? false;
 const ignoreHTTPSErrors = priorSettings.ignoreHTTPSErrors ?? false;
 const quality = priorSettings.quality ?? 100;
+const driveMode = priorSettings.driveMode ?? 'normal';
 
 saveState({
   ignoreHTTPSErrors,
@@ -32,6 +34,7 @@ saveState({
   stealth,
   blockAds,
   quality,
+  driveMode,
 });
 
 export const getHeadless = () => getState().headless;
@@ -48,6 +51,8 @@ export const setIgnoreHTTPS = (ignoreHTTPSErrors: boolean) => saveState({ ignore
 
 export const getQuality = () => getState().quality;
 export const setQuality = (quality: number) => saveState({ quality });
+export const getDriveMode = () => getState().driveMode;
+export const setDriveMode = (driveMode: string) => saveState({ driveMode });
 
 export const getWebSocketURL = () => {
   const baseURL = getBaseURL();
@@ -137,6 +142,10 @@ export const getConnectURL = () => {
 
   if (stealth) {
     wsURL.searchParams.append('stealth', 'true');
+  }
+
+  if (driveMode) {
+    wsURL.searchParams.append('driveMode', driveMode);
   }
 
   return wsURL.href;

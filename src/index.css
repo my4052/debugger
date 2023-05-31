@@ -348,6 +348,22 @@ main {
   border-bottom: 1px dashed white;
 }
 
+#sessions #history-viewer {
+  overflow-y: auto;
+  background: #111;
+}
+
+#sessions #history-viewer li {
+  margin-bottom: 24px;
+}
+
+#sessions #history-viewer span {
+  line-height: 22px;
+  color: white;
+  border-bottom: 1px dashed white;
+  cursor: pointer;
+}
+
 .resizer-horizontal {
   width: 5px;
   background: #555;
@@ -371,6 +387,10 @@ main {
   align-items: center;
   justify-content: center;
   background: rgba(0, 123, 255, .1);
+}
+
+#editor {
+  width: 340px;
 }
 
 #editor-tabs {

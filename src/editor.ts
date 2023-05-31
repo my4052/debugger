@@ -1,11 +1,12 @@
 import * as monaco from 'monaco-editor';
-import { get, set } from './storage';
+import { set } from './storage';
 import {
+  defaultExample,
   screenshotExample,
-  pdfExample,
-  scrapeExample,
-  blankExample,
-  searchExample,
+  // pdfExample,
+  // scrapeExample,
+  // blankExample,
+  // searchExample,
 } from './constants';
 
 const nodeTypes = (require as any).context('!!raw-loader!@types/node/', true, /\.d.ts$/);
@@ -20,31 +21,46 @@ interface tabs {
 export class Editor {
   private editor: monaco.editor.IStandaloneCodeEditor;
   private $tabs = document.querySelector('#editor-tabs') as HTMLOListElement;
+  private url = '';
 
   static storageKey = 'editorTabs';
   static closeButtonSelector = 'close-btn';
   static dataTabCode = 'data-tab-code';
   static activeTabClass = 'active';
-  static defaultTabs: Array<tabs> = [{
-    tabName: 'Search',
-    code: searchExample,
-    active: true,
-  },{
-    tabName: 'Scrape',
-    code: scrapeExample,
-    active: false,
-  }, {
-    tabName: 'PDF',
-    code: pdfExample,
-    active: false,
-  }, {
-    tabName: 'Screenshot',
-    code: screenshotExample,
-    active: false,
-  }];
+  static defaultTabs: Array<tabs> = [
+    {
+      tabName: 'Script',
+      code: defaultExample,
+      active: true,
+    },
+    // {
+    //   tabName: 'Search',
+    //   code: searchExample,
+    //   active: false,
+    // },
+    // {
+    //   tabName: 'Scrape',
+    //   code: scrapeExample,
+    //   active: false,
+    // },
+    // {
+    //   tabName: 'PDF',
+    //   code: pdfExample,
+    //   active: false,
+    // },
+    // {
+    //   tabName: 'Screenshot',
+    //   code: screenshotExample,
+    //   active: false,
+    // },
+  ];
 
   constructor($editor: HTMLElement) {
-    const priorState = (get(Editor.storageKey) as tabs[] | null || Editor.defaultTabs);
+    const search = new URLSearchParams(window.location.search);
+    const encodedUrl = search.get('url') || '';
+    this.url = decodeURIComponent(encodedUrl);
+    const defaultTabs = Editor.defaultTabs.map((item) => ({ ...item, code: item.code.replace(/URL/, this.url) }));
+    const priorState = defaultTabs;
 
     const editorCode: string = priorState.reduce((prev, { tabName, code, active }) => {
       const tab = document.createElement('li');
@@ -117,11 +133,12 @@ export class Editor {
     const tabs = this.getTabs();
     const tab = document.createElement('li');
     const closeButton = this.createCloseButton();
-    tab.innerText = 'My-Script';
+    tab.innerText = 'Script';
     tab.contentEditable = 'true';
 
+    const defaultExampleCode = defaultExample.replace(/URL/, this.url);
     tab.onclick = this.setTabActive;
-    tab.setAttribute(Editor.dataTabCode, blankExample);
+    tab.setAttribute(Editor.dataTabCode, defaultExampleCode);
     tab.className = Editor.activeTabClass;
     tab.onblur = this.onAddTabComplete;
     tab.appendChild(closeButton);
@@ -129,7 +146,7 @@ export class Editor {
     tabs.forEach((t) => t.querySelector('.' + Editor.closeButtonSelector)?.removeAttribute('disabled'));
     this.clearActiveTabs();
     this.$tabs.prepend(tab);
-    this.editor.setValue(blankExample);
+    this.editor.setValue(defaultExampleCode);
     tab.focus();
     document.execCommand('selectAll', false);
   };
