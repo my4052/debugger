@@ -1,6 +1,6 @@
 {
   "name": "@my4052/browserless-debugger",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "The web-client for browserless/chrome debugging",
   "main": "static/index.js",
   "files": [
